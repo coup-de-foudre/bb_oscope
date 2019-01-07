@@ -1,7 +1,7 @@
 import oscope.scope.fake
 import oscope.trace
 import oscope.trace_publish
-import oscope.zmq_socket_helpers as helpers
+import oscope.network.util as helpers
 
 def test_publishing():
     fakescope = oscope.scope.fake.FakeOscilloscope()

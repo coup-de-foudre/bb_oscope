@@ -1,7 +1,7 @@
 import pytest
 import zmq
 
-import oscope.zmq_socket_helpers as socket_helpers
+import oscope.network.util as socket_helpers
 
 
 def test_ctx_manager():
