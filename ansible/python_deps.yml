@@ -1,0 +1,22 @@
+---
+- hosts: beaglebones
+  remote_user: debian
+  tasks: 
+  - name: "Python | Install pip3"
+    apt:
+      name: python3-pip
+      update_cache: yes
+      cache_valid_time: 3600
+    become: true
+
+  - name: "Python | Copy requirements.txt to remote host"
+    copy:
+      src: "../requirements.txt"
+      dest: "/tmp/requirements.txt"
+    register: info_requirements_file
+
+  - name: "Python | Install python modules from requirements.txt"
+    pip:
+      requirements: "/tmp/requirements.txt"
+      executable: pip3
+    become: true

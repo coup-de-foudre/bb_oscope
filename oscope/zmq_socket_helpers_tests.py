@@ -1,3 +1,4 @@
+import pytest
 import zmq
 
 import oscope.zmq_socket_helpers as socket_helpers
@@ -17,7 +18,15 @@ def test_ipc_temp_unique():
             
             assert len(unique_names) == 2, unique_names
 
-def test_linked_pair():
+def test_ipc_temp_too_long():
+    with pytest.raises(AssertionError):
+        socket_helpers.IPCTemp(["f" * (socket_helpers.IPC_PATH_MAX_LEN + 1)]).__enter__()
+
+def test_LinkedPubSubPair_basic():
+    with socket_helpers.LinkedPubSubPair() as (pub, sub):
+        pass
+
+def test_LinkedPubSubPair_sends():
     with socket_helpers.LinkedPubSubPair() as (pub, sub):
         for x in range(30):
             msg = "foo-" + str(x)

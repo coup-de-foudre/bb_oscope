@@ -21,7 +21,7 @@ TRACE_SCHEMA = {
 }
 
 
-DEVICE_SCHEMA = {
+SENDER_SCHEMA = {
     "type": "object",
     "properties" : {
         "name" : {
@@ -47,11 +47,11 @@ DEVICE_SCHEMA = {
 MESSAGE_SCHEMA = {
     "type" : "object",
     "properties" : {
-        "device": DEVICE_SCHEMA,
+        "sender": SENDER_SCHEMA,
         "trace": TRACE_SCHEMA,
         "sequence": {"type": "number"}
     },
-    "required": ["device", "trace", "sequence"]
+    "required": ["sender", "trace", "sequence"]
 }
 
 

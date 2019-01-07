@@ -6,7 +6,7 @@ import oscope.schema as schema
 
 
 VALID_METADATA = {
-        "device": {
+        "sender": {
             "id": "foo",
             "name": "bar",
             "session": "baz",
@@ -27,6 +27,6 @@ def test_validator_fails():
 def test_validator_success(): 
     schema.validate_message_metadata(VALID_METADATA)
 
-def test_get_device_meta():
-    meta = schema.get_device_meta("foo", "bar")
-    jsonschema.validate(meta, schema.DEVICE_SCHEMA)
+def test_get_sender_meta():
+    meta = schema.get_sender_meta("foo", "bar")
+    jsonschema.validate(meta, schema.SENDER_SCHEMA)

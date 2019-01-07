@@ -1,1 +1,2 @@
-192.168.7.2
+[beaglebones]
+192.168.1.128 ansible_ssh_user=debian

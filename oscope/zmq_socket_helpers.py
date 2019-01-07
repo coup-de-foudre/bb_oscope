@@ -36,11 +36,8 @@ class IPCTemp:
         for name in names:
             if len(name) >= IPC_PATH_MAX_LEN:
                 self._td.cleanup()
-                kesm.base.raise_error(
-                    'IPC Address name "{}" is too long: ({} chars, max is {})',
-                    name, len(name), IPC_PATH_MAX_LEN,
-                    exception_class=AssertionError
-                )
+                raise AssertionError(
+                    'IPC Address name "{}" is too long: ({} chars, max is {})'.format(name, len(name), IPC_PATH_MAX_LEN))
         return names
 
     def __exit__(self, *args):
@@ -123,9 +120,3 @@ class LinkedPubSubPair():
             self._ctx = None
 
         self._ipc_temp.__exit__(*args)
-
-
-class TestPublishContext(PublishContext):
-    def __init__(self, binds):
-        self.sanity_check_bind_list(binds)
-    
