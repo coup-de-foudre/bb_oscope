@@ -1,0 +1,4 @@
+jsonschema==2.6.0
+ortools==6.10.6025
+pytest==4.0.1
+pytest-cov==2.5.1
