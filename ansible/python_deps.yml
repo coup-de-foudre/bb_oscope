@@ -20,3 +20,8 @@
       requirements: "/tmp/requirements.txt"
       executable: pip3
     become: true
+
+  # - name: Name of task
+  #   lineinfile:
+  #     line: "this is the line"
+  #     dest: "/etc/nrpe.cfg"
