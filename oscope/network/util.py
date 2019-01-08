@@ -134,17 +134,16 @@ class SubscribeSocket:
 
 
 class NoisyPubSocket:
+    PAYLOAD = b"foo"
     def __init__(self):
         self._pub = None
 
     def _do_sending(self):
         while True:
-            print("Spam")
-            self._pub.send(b"foo")
+            self._pub.send(self.PAYLOAD)
             self._close_event.wait(timeout=0.1)
             if self._close_event.is_set():
                 break
-        print("Closing")
 
     def __enter__(self):
         self._ctx = zmq.Context().__enter__()
@@ -158,7 +157,7 @@ class NoisyPubSocket:
     def __exit__(self, *args):
         self._close_event.set()
         self._thread.join(1)
-        assert not self._thread.is_alive(), "WTF"
+        assert not self._thread.is_alive(), "Pub Socket did not shutdown"
 
         self._pub.__exit__(self, *args)
         self._ctx.__exit__(self, *args)
