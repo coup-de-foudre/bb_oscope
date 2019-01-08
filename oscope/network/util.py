@@ -1,5 +1,6 @@
 import tempfile
 import time
+import threading
 import os
 
 import zmq
@@ -120,3 +121,45 @@ class LinkedPubSubPair():
             self._ctx = None
 
         self._ipc_temp.__exit__(*args)
+
+class SubscribeSocket:
+    def __enter__(self):
+        self._ctx = zmq.Context().__enter__()
+        self._sub = self._ctx.socket(zmq.SUB).__enter__()
+        return self._sub
+
+    def __exit__(self, *args):
+        self._sub.__exit__(self, *args)
+        self._ctx.__exit__(self, *args)
+
+
+class NoisyPubSocket:
+    def __init__(self):
+        self._pub = None
+
+    def _do_sending(self):
+        while True:
+            print("Spam")
+            self._pub.send(b"foo")
+            self._close_event.wait(timeout=0.1)
+            if self._close_event.is_set():
+                break
+        print("Closing")
+
+    def __enter__(self):
+        self._ctx = zmq.Context().__enter__()
+        self._pub = self._ctx.socket(zmq.PUB).__enter__()
+
+        self._close_event = threading.Event() 
+        self._thread = threading.Thread(target=self._do_sending)
+        self._thread.start()
+        return self._pub
+
+    def __exit__(self, *args):
+        self._close_event.set()
+        self._thread.join(1)
+        assert not self._thread.is_alive(), "WTF"
+
+        self._pub.__exit__(self, *args)
+        self._ctx.__exit__(self, *args)
+

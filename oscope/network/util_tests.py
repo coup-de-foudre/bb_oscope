@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import zmq
 
@@ -33,3 +35,16 @@ def test_LinkedPubSubPair_sends():
             pub.send_pyobj(msg)
             assert sub.poll(timeout=1000)
             assert sub.recv_pyobj() == msg
+
+def test_NoisyPubSocket_smoke():
+    with socket_helpers.NoisyPubSocket() as skt:
+        assert isinstance(skt, zmq.Socket)
+
+
+def test_NoisyPubSocket():
+    with socket_helpers.NoisyPubSocket() as pub:
+        with socket_helpers.SubscribeSocket() as sub:
+            port = pub.bind_to_random_port("tcp://127.0.0.1")
+            sub.connect("tcp://localhost:{}".format(port))
+            sub.subscribe("")
+            assert sub.poll(timeout=1000) > 0, ":("

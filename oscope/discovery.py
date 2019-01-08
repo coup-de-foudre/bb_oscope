@@ -1,8 +1,13 @@
 import datetime
 
+import netifaces as ni
 import zmq
 
-import netifaces as ni
+import oscope.network.util
+
+# Neumonic     0scil0
+SCOPE_DEFAULT = 55110
+
 
 def get_interfaces() -> list:
     return ni.interfaces()
@@ -27,6 +32,18 @@ def ips_in_24(ipaddress: str) -> list:
 
     return all_ips
 
+
 def is_sub_socket_live(skt: zmq.Socket, max_time: datetime.timedelta) -> bool:
     poll_time_ms = max_time.seconds / 1000.0
-    return skt.poll(timeout=poll_time_ms) > 0
+    try:
+        return skt.poll(timeout=poll_time_ms) > 0
+    except zmq.error.ZMQError:
+        return False
+
+
+def is_ip_address_live(ip: str, timeout: datetime.timedelta, port: int=SCOPE_DEFAULT) -> bool:
+    timeout_ms = timeout.total_seconds()
+    with oscope.network.util.SubscribeSocket() as skt:
+        skt.connect("tcp://{}:{}".format(ip, port))
+        skt.subscribe("")
+        return is_sub_socket_live(skt, timeout)
