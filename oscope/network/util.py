@@ -5,6 +5,8 @@ import os
 
 import zmq
 
+import oscope.base
+
 IPC_PATH_MAX_LEN = 107
 
 
@@ -59,9 +61,9 @@ class PublishContext:
     @staticmethod
     def sanity_check_bind_list(binds: list):
         for bind in binds:
-            assert isinstance(bind, str)
-            assert ":" in bind, "Invalid endpoint specified:" + bind
-
+            oscope.base.assert_isinstance(bind, str)
+            oscope.base.assert_contained(":", bind)
+    
     def __init__(self, binds: list):
         self.sanity_check_bind_list(binds)
         self._binds = binds
@@ -165,7 +167,7 @@ class NoisyPubSocket:
     def __exit__(self, *args):
         self._close_event.set()
         self._thread.join(1)
-        assert not self._thread.is_alive(), "Pub Socket did not shutdown"
+        oscope.base.assert_false(self._thread.is_alive(), "Pub Socket did not shutdown")
 
         self._pub.__exit__(self, *args)
         self._ctx.__exit__(self, *args)

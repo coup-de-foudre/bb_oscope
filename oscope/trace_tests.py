@@ -1,5 +1,6 @@
 import numpy as np
 
+import oscope.base
 import oscope.trace
 import oscope.schema_tests
 
@@ -11,7 +12,7 @@ def test_package_trace_data():
     packaged = oscope.trace.package_trace_data(oscope.schema_tests.VALID_METADATA, array_data)
 
     for element in packaged:
-        assert isinstance(element, bytes)
+        oscope.base.assert_isinstance(element, bytes)
 
 def test_unpackage_trace_data():
     expected_length = oscope.schema_tests.VALID_METADATA["trace"]["samples"]
