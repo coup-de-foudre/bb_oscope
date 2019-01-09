@@ -47,8 +47,16 @@ def test_is_sub_scket_live():
 def test_is_ip_address_live():
     live = discovery.is_ip_address_live("127.0.0.1", datetime.timedelta(seconds=0.1), port=55555)
     assert isinstance(live, bool)
-    assert not live, "?!?!?"
+    assert not live, "Live?!?!"
 
     with oscope.network.util.LinkedPubSubPair() as (pub, _):
-        port = pub.bind_to_random_port('tcp://*')
-        discovery.is_ip_address_live("127.0.0.1", datetime.timedelta(seconds=2), port=port)
+        port = pub.bind_to_random_port('tcp://127.0.0.1')
+        discovery.is_ip_address_live("127.0.0.1", datetime.timedelta(seconds=1), port=port)
+
+def test_scan_subnet_smoke():
+    discovery.scan_subnet("127.23.23.23", quiet=False)
+
+def test_scan_subnet():
+    results = discovery.scan_subnet("127.23.23.23")
+    oscope.base.assert_isinstance(results, list)
+    assert results == [], results

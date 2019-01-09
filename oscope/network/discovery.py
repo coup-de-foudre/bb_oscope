@@ -1,3 +1,4 @@
+import concurrent.futures
 import datetime
 
 import netifaces as ni
@@ -34,16 +35,29 @@ def ips_in_24(ipaddress: str) -> list:
 
 
 def is_sub_socket_live(skt: zmq.Socket, max_time: datetime.timedelta) -> bool:
-    poll_time_ms = max_time.seconds / 1000.0
+    poll_time_ms = max_time.seconds * 1000.0
     try:
         return skt.poll(timeout=poll_time_ms) > 0
     except zmq.error.ZMQError:
+        print("Tested life of unconnected socket :(")
         return False
 
 
 def is_ip_address_live(ip: str, timeout: datetime.timedelta, port: int=SCOPE_DEFAULT) -> bool:
-    timeout_ms = timeout.total_seconds()
     with oscope.network.util.SubscribeSocket() as skt:
         skt.connect("tcp://{}:{}".format(ip, port))
         skt.subscribe("")
         return is_sub_socket_live(skt, timeout)
+
+
+def scan_subnet(base_ip: str, port: int=SCOPE_DEFAULT, timeout: datetime.timedelta=datetime.timedelta(seconds=0.1), quiet=True):
+    ips = ips_in_24(base_ip)
+    alive_ips = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+        results = pool.map(lambda i: is_ip_address_live(i, timeout, port), ips, timeout=timeout.total_seconds() * 2)
+        for ip, alive in zip(ips, results):
+            if not quiet:
+                print("Scanned {}: {}".format(ip, alive))
+            if alive:
+                alive_ips.append(ip)
+    return alive_ips

@@ -103,7 +103,15 @@ class LinkedPubSubPair():
         self._sub = self._ctx.socket(zmq.SUB)
         self._sub.connect(address)
         self._sub.subscribe("")
-        time.sleep(0.2) # Let the subscribe round-trip
+
+        time.sleep(0.4)
+        # Send some things till you get a response through
+        while self._sub.poll(timeout=50) < 0:
+            self._pub.send(b"ping")
+        
+        # Empty out the responses
+        while self._sub.poll(timeout=50) > 0:
+            self._sub.recv()
 
         return self._pub, self._sub
 
