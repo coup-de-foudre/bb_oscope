@@ -7,11 +7,6 @@ import oscope.base
 import oscope.network.util as socket_helpers
 
 
-def test_ctx_manager():
-    with socket_helpers.PublishContext(("ipc://foo", "ipc://bar")) as pub_socket:
-        oscope.base.assert_isinstance(pub_socket, zmq.Socket)
-
-
 def test_ipc_temp_unique():
     with socket_helpers.IPCTemp(["test1"]) as paths1:
         with socket_helpers.IPCTemp(["test1"]) as paths2:
@@ -37,6 +32,11 @@ def test_LinkedPubSubPair_sends():
             assert sub.poll(timeout=1000)
             assert sub.recv_pyobj() == msg
 
+def test_PubSocket_ctx_manager():
+    with socket_helpers.PubSocket() as pub_socket:
+        pub_socket.bind("ipc://foo")
+        oscope.base.assert_isinstance(pub_socket, zmq.Socket)
+
 def test_NoisyPubSocket_smoke():
     with socket_helpers.NoisyPubSocket() as skt:
         oscope.base.assert_isinstance(skt, zmq.Socket)
@@ -48,3 +48,4 @@ def test_NoisyPubSocket():
             sub.connect("tcp://localhost:{}".format(port))
             sub.subscribe("")
             assert sub.poll(timeout=1000) > 0, ":("
+

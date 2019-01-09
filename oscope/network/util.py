@@ -47,47 +47,6 @@ class IPCTemp:
         self._td.__exit__(*args)
 
 
-
-class PublishContext:
-    """
-    This is a context helper that creates and cleans up
-    ZMQ Publish socket instances.
-
-    >>> with socket as PublishContext(["ipc://endpoint"]):
-    >>>    # Do stuff with socket
-    >>> # Socket and context cleaned up w/o hassle
-    """
-
-    @staticmethod
-    def sanity_check_bind_list(binds: list):
-        for bind in binds:
-            oscope.base.assert_isinstance(bind, str)
-            oscope.base.assert_contained(":", bind)
-    
-    def __init__(self, binds: list):
-        self.sanity_check_bind_list(binds)
-        self._binds = binds
-        self._socket = None
-        self._ctx = None
-    
-    def __enter__(self):
-        self._ctx = zmq.Context.instance()
-        self._socket = self._ctx.socket(zmq.PUB)
-        for b in self._binds:
-            self._socket.bind(b)
-
-        return self._socket
-
-    def __exit__(self, *args):
-        if self._socket is not None:
-            self._socket.close(linger=0)
-            self._socket = None
-
-        if self._ctx is not None:
-            self._ctx.term()
-            self._ctx = None
-
-
 class LinkedPubSubPair():
     def __init__(self):
         self._ctx = None
@@ -143,11 +102,22 @@ class SubscribeSocket:
         self._ctx.__exit__(self, *args)
 
 
-class NoisyPubSocket:
-    PAYLOAD = b"foo"
+class PubSocket:
     def __init__(self):
+        self._ctx = None
         self._pub = None
 
+    def __enter__(self):
+        self._ctx = zmq.Context().__enter__()
+        self._pub = self._ctx.socket(zmq.PUB).__enter__()
+        return self._pub
+
+    def __exit__(self, *args):
+        self._pub.__exit__(self, *args)
+        self._ctx.__exit__(self, *args)
+
+class NoisyPubSocket(PubSocket):
+    PAYLOAD = b"foo"
     def _do_sending(self):
         while True:
             self._pub.send(self.PAYLOAD)
@@ -156,8 +126,8 @@ class NoisyPubSocket:
                 break
 
     def __enter__(self):
-        self._ctx = zmq.Context().__enter__()
-        self._pub = self._ctx.socket(zmq.PUB).__enter__()
+        super().__init__()
+        super().__enter__()
 
         self._close_event = threading.Event() 
         self._thread = threading.Thread(target=self._do_sending)
@@ -168,7 +138,4 @@ class NoisyPubSocket:
         self._close_event.set()
         self._thread.join(1)
         oscope.base.assert_false(self._thread.is_alive(), "Pub Socket did not shutdown")
-
-        self._pub.__exit__(self, *args)
-        self._ctx.__exit__(self, *args)
-
+        super().__exit__(*args)
