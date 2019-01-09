@@ -32,7 +32,7 @@ def test_LinkedPubSubPair_sends():
         for x in range(30):
             msg = "foo-" + str(x)
             pub.send_pyobj(msg)
-            assert sub.poll(timeout=1000)
+            oscope.base.assert_pollin(sub)
             assert sub.recv_pyobj() == msg
 
 
@@ -53,4 +53,4 @@ def test_NoisyPubSocket():
             port = pub.bind_to_random_port("tcp://127.0.0.1")
             sub.connect("tcp://localhost:{}".format(port))
             sub.subscribe("")
-            assert sub.poll(timeout=1000) > 0, ":("
+            oscope.base.assert_pollin(sub)

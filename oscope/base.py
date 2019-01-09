@@ -1,4 +1,6 @@
-# TODO(meawoppl) - Add tests for all of these.
+import datetime
+
+import zmq
 
 
 def assert_isinstance(thing, expected_type):
@@ -30,3 +32,9 @@ def assert_false(thing, message="Expected value to be false"):
     __tracebackhide__ = True
     assert_isinstance(thing, bool)
     assert not thing, message
+
+
+def assert_pollin(skt: zmq.Socket, timeout=datetime.timedelta(seconds=1)):
+    assert_isinstance(skt, zmq.Socket)
+    message = "Socket {} did not POLLIN in {} seconds".format(skt, timeout.total_seconds())
+    assert skt.poll(timeout=timeout.total_seconds() * 1000) > 0, message

@@ -14,7 +14,7 @@ def test_publishing():
         for x in range(10):
             publisher.publish_data()
 
-            assert sub.poll(timeout=1000)
+            oscope.base.assert_pollin(sub)
             packaged = sub.recv_multipart()
 
             meta, _ = oscope.encoding.unpackage_trace_data(packaged)
@@ -29,7 +29,7 @@ def test_publishing_threaded():
         publisher = oscope.trace_publish.TracePublisher(pub, fakescope)
         publisher.start_sender()
 
-        oscope.base.assert_true(sub.poll(timeout=500) > 0, "No poll in from publisher")
+        oscope.base.assert_pollin(sub)
         packaged = sub.recv_multipart()
         oscope.encoding.unpackage_trace_data(packaged)
 
