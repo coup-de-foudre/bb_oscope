@@ -7,14 +7,14 @@ import oscope
 
 TRACE_SCHEMA = {
     "type": "object",
-    "properties" : {
-        "samples" : {
-            "type" : "number",
-            "description": "The number of samples taken"    
+    "properties": {
+        "samples": {
+            "type": "number",
+            "description": "The number of samples taken"
         },
-        "frequency" : {
-            "type" : "number",
-            "description" : "The frequency in Hertz of sampling"    
+        "frequency": {
+            "type": "number",
+            "description": "The frequency in Hertz of sampling"
         },
     },
     "required": ["samples", "frequency"]
@@ -23,18 +23,18 @@ TRACE_SCHEMA = {
 
 SENDER_SCHEMA = {
     "type": "object",
-    "properties" : {
-        "name" : {
-            "type" : "string",
-            "description": "The name of the sampling device"    
-        },
-        "id" : {
-            "type" : "string",
-            "description" : "A unique identifier for the device"    
-        },
-        "session" : {
+    "properties": {
+        "name": {
             "type": "string",
-            "description" : "A uuid unique to the software invocation"
+            "description": "The name of the sampling device"
+        },
+        "id": {
+            "type": "string",
+            "description": "A unique identifier for the device"
+        },
+        "session": {
+            "type": "string",
+            "description": "A uuid unique to the software invocation"
         },
         "time": {
             "type": "number",
@@ -45,8 +45,8 @@ SENDER_SCHEMA = {
 }
 
 MESSAGE_SCHEMA = {
-    "type" : "object",
-    "properties" : {
+    "type": "object",
+    "properties": {
         "sender": SENDER_SCHEMA,
         "trace": TRACE_SCHEMA,
         "sequence": {"type": "number"}

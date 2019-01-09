@@ -16,13 +16,16 @@ def test_ipc_temp_unique():
 
             oscope.base.assert_length(unique_names, 2)
 
+
 def test_ipc_temp_too_long():
     with pytest.raises(AssertionError):
         socket_helpers.IPCTemp(["f" * (socket_helpers.IPC_PATH_MAX_LEN + 1)]).__enter__()
 
+
 def test_LinkedPubSubPair_basic():
     with socket_helpers.LinkedPubSubPair() as (pub, sub):
         pass
+
 
 def test_LinkedPubSubPair_sends():
     with socket_helpers.LinkedPubSubPair() as (pub, sub):
@@ -32,14 +35,17 @@ def test_LinkedPubSubPair_sends():
             assert sub.poll(timeout=1000)
             assert sub.recv_pyobj() == msg
 
+
 def test_PubSocket_ctx_manager():
     with socket_helpers.PubSocket() as pub_socket:
         pub_socket.bind("ipc://foo")
         oscope.base.assert_isinstance(pub_socket, zmq.Socket)
 
+
 def test_NoisyPubSocket_smoke():
     with socket_helpers.NoisyPubSocket() as skt:
         oscope.base.assert_isinstance(skt, zmq.Socket)
+
 
 def test_NoisyPubSocket():
     with socket_helpers.NoisyPubSocket() as pub:
@@ -48,4 +54,3 @@ def test_NoisyPubSocket():
             sub.connect("tcp://localhost:{}".format(port))
             sub.subscribe("")
             assert sub.poll(timeout=1000) > 0, ":("
-

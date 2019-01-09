@@ -6,6 +6,7 @@ import numpy as np
 import oscope.base
 import oscope.schema
 
+
 def ndarray_to_bytes(array: np.ndarray) -> bytes:
     """
     Encode a `np.ndarray` to bytes in `.npy` format and return the bytes.
@@ -22,10 +23,11 @@ def bytes_to_ndarray(b: bytes) -> np.ndarray:
     bio = io.BytesIO(b)
     return np.load(bio)
 
+
 def package_trace_data(metadata: dict, trace: np.ndarray) -> tuple:
     oscope.schema.validate_message_metadata(metadata)
     encoded_header = json.dumps(metadata).encode("utf-8")
-    encoded_array = oscope.encoding.ndarray_to_bytes(trace) 
+    encoded_array = oscope.encoding.ndarray_to_bytes(trace)
     return (encoded_header, encoded_array)
 
 

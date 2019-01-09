@@ -9,8 +9,12 @@ import oscope.scope.abstract as abs_scope
 import oscope.schema as schema
 import oscope.encoding
 
+DEFAULT_STOP_TIME = datetime.timedelta(seconds=1)
+
+
 class TracePublisher:
-    def __init__(self,
+    def __init__(
+            self,
             pub: zmq.Socket,
             scope: abs_scope.AbstractOscilloscope):
         self.pub = pub
@@ -30,10 +34,11 @@ class TracePublisher:
         self.scope.block_on_ready(timeout=self.timeout)
         trace_data = self.scope.read()
 
+        sender = schema.get_sender_meta(self.scope.get_name(), str(id(self.scope)))
         meta = dict(
-            sender = schema.get_sender_meta(self.scope.get_name(), str(id(self.scope))),
-            trace = self.scope.get_trace_meta(),
-            sequence = self._seq_get_inc())
+            sender=sender,
+            trace=self.scope.get_trace_meta(),
+            sequence=self._seq_get_inc())
 
         packaged = oscope.encoding.package_trace_data(meta, trace_data)
         self.pub.send_multipart(packaged)
@@ -53,8 +58,8 @@ class TracePublisher:
         self._sender = threading.Thread(target=self._sender_thread_run)
         self._sender.start()
 
-    def stop_sender(self, timeout: datetime.timedelta=datetime.timedelta(seconds=1)):
+    def stop_sender(self, timeout: datetime.timedelta = DEFAULT_STOP_TIME):
         self._stop_event.set()
         self._sender.join(timeout=timeout.total_seconds())
-        oscope.base.assert_false(self._sender.is_alive(), "Sender did not shut down")
+        oscope.base.assert_false(self._sender.is_alive(), "Sender did not shutdown")
         self._sender = None

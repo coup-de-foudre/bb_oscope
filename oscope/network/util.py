@@ -60,7 +60,7 @@ class LinkedPubSubPair():
         self._ctx = zmq.Context.instance()
         self._pub = self._ctx.socket(zmq.PUB)
         self._pub.bind(address)
-        
+
         self._sub = self._ctx.socket(zmq.SUB)
         self._sub.connect(address)
         self._sub.subscribe("")
@@ -69,7 +69,7 @@ class LinkedPubSubPair():
         # Send some things till you get a response through
         while self._sub.poll(timeout=50) < 0:
             self._pub.send(b"ping")
-        
+
         # Empty out the responses
         while self._sub.poll(timeout=50) > 0:
             self._sub.recv()
@@ -80,7 +80,7 @@ class LinkedPubSubPair():
         if self._pub is not None:
             self._pub.close(linger=0)
             self._pub = None
-        
+
         if self._sub is not None:
             self._sub.close(linger=0)
             self._sub = None
@@ -90,6 +90,7 @@ class LinkedPubSubPair():
             self._ctx = None
 
         self._ipc_temp.__exit__(*args)
+
 
 class SubSocket:
     def __enter__(self):
@@ -116,8 +117,10 @@ class PubSocket:
         self._pub.__exit__(self, *args)
         self._ctx.__exit__(self, *args)
 
+
 class NoisyPubSocket(PubSocket):
     PAYLOAD = b"foo"
+
     def _do_sending(self):
         while True:
             self._pub.send(self.PAYLOAD)

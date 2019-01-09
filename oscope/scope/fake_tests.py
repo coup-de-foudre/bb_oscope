@@ -2,6 +2,7 @@ import numpy as np
 
 import oscope.scope.fake as fake_scope
 
+
 def test_getters():
     scope = fake_scope.FakeOscilloscope()
 

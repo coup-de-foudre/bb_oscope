@@ -4,6 +4,7 @@ import oscope.encoding
 import oscope.trace_publish
 import oscope.network.util as helpers
 
+
 def test_publishing():
     fakescope = oscope.scope.fake.FakeOscilloscope()
 
@@ -16,10 +17,11 @@ def test_publishing():
             assert sub.poll(timeout=1000)
             packaged = sub.recv_multipart()
 
-            meta, trace = oscope.encoding.unpackage_trace_data(packaged)
+            meta, _ = oscope.encoding.unpackage_trace_data(packaged)
 
             assert meta["sequence"] == x
-        
+
+
 def test_publishing_threaded():
     fakescope = oscope.scope.fake.FakeOscilloscope()
 

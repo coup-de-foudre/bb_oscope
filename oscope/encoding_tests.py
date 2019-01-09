@@ -23,12 +23,18 @@ def test_to_from_bytes_idempotence():
 
     assert b1 == b2, "Idempotence check failed :("
 
+
 def test_package_trace_data():
-    packaged = oscope.encoding.package_trace_data(oscope.schema_tests.VALID_METADATA, oscope.schema_tests.VALID_DATA)
+    packaged = oscope.encoding.package_trace_data(
+            oscope.schema_tests.VALID_METADATA,
+            oscope.schema_tests.VALID_DATA)
 
     for element in packaged:
         oscope.base.assert_isinstance(element, bytes)
 
+
 def test_unpackage_trace_data():
-    packaged = oscope.encoding.package_trace_data(oscope.schema_tests.VALID_METADATA, oscope.schema_tests.VALID_DATA)
+    packaged = oscope.encoding.package_trace_data(
+            oscope.schema_tests.VALID_METADATA,
+            oscope.schema_tests.VALID_DATA)
     oscope.encoding.unpackage_trace_data(packaged)

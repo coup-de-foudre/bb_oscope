@@ -20,15 +20,17 @@ VALID_METADATA = {
         "sequence": 0
     }
 
-VALID_DATA =  np.arange(VALID_METADATA["trace"]["samples"], dtype=np.float64)
+VALID_DATA = np.arange(VALID_METADATA["trace"]["samples"], dtype=np.float64)
 
 
 def test_validator_fails():
     with pytest.raises(jsonschema.ValidationError):
         schema.validate_message_metadata({})
-    
+
+
 def test_validator_success(): 
     schema.validate_message_metadata(VALID_METADATA)
+
 
 def test_get_sender_meta():
     meta = schema.get_sender_meta("foo", "bar")
