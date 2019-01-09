@@ -44,7 +44,7 @@ def is_sub_socket_live(skt: zmq.Socket, max_time: datetime.timedelta) -> bool:
 
 
 def is_ip_address_live(ip: str, timeout: datetime.timedelta, port: int=SCOPE_DEFAULT) -> bool:
-    with oscope.network.util.SubscribeSocket() as skt:
+    with oscope.network.util.SubSocket() as skt:
         skt.connect("tcp://{}:{}".format(ip, port))
         skt.subscribe("")
         return is_sub_socket_live(skt, timeout)

@@ -36,11 +36,11 @@ def test_is_sub_scket_live():
     
     oscope.base.assert_true(live)
 
-    with oscope.network.util.SubscribeSocket() as skt:
+    with oscope.network.util.SubSocket() as skt:
         live = discovery.is_sub_socket_live(skt, max_time=datetime.timedelta(seconds=1))
     oscope.base.assert_false(live)
 
-    with oscope.network.util.SubscribeSocket() as skt:
+    with oscope.network.util.SubSocket() as skt:
         live = discovery.is_sub_socket_live(skt, max_time=datetime.timedelta(seconds=1))
     oscope.base.assert_false(live)
 

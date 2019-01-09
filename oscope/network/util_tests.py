@@ -43,7 +43,7 @@ def test_NoisyPubSocket_smoke():
 
 def test_NoisyPubSocket():
     with socket_helpers.NoisyPubSocket() as pub:
-        with socket_helpers.SubscribeSocket() as sub:
+        with socket_helpers.SubSocket() as sub:
             port = pub.bind_to_random_port("tcp://127.0.0.1")
             sub.connect("tcp://localhost:{}".format(port))
             sub.subscribe("")
