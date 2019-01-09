@@ -1,5 +1,6 @@
+import oscope.base
 import oscope.scope.fake
-import oscope.trace
+import oscope.encoding
 import oscope.trace_publish
 import oscope.network.util as helpers
 
@@ -10,13 +11,24 @@ def test_publishing():
         publisher = oscope.trace_publish.TracePublisher(pub, fakescope)
 
         for x in range(10):
-            publisher.push()
+            publisher.publish_data()
 
             assert sub.poll(timeout=1000)
             packaged = sub.recv_multipart()
 
-            meta, trace = oscope.trace.unpackage_trace_data(packaged)
+            meta, trace = oscope.encoding.unpackage_trace_data(packaged)
 
             assert meta["sequence"] == x
         
-    
+def test_publishing_threaded():
+    fakescope = oscope.scope.fake.FakeOscilloscope()
+
+    with helpers.LinkedPubSubPair() as (pub, sub):
+        publisher = oscope.trace_publish.TracePublisher(pub, fakescope)
+        publisher.start_sender()
+
+        oscope.base.assert_true(sub.poll(timeout=500) > 0, "No poll in from publisher")
+        packaged = sub.recv_multipart()
+        oscope.encoding.unpackage_trace_data(packaged)
+
+        publisher.stop_sender()

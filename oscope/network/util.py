@@ -91,7 +91,7 @@ class LinkedPubSubPair():
 
         self._ipc_temp.__exit__(*args)
 
-class SubscribeSocket:
+class SubSocket:
     def __enter__(self):
         self._ctx = zmq.Context().__enter__()
         self._sub = self._ctx.socket(zmq.SUB).__enter__()
