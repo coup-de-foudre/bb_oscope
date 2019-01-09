@@ -2,6 +2,7 @@ import json
 
 import numpy as np
 
+import oscope.base
 import oscope.schema
 import oscope.array_encoding
 
@@ -14,7 +15,7 @@ def package_trace_data(metadata: dict, trace: np.ndarray) -> tuple:
 
 
 def unpackage_trace_data(frame: tuple) -> (dict, np.ndarray):
-    assert len(frame) == 2, frame
+    oscope.base.assert_length(frame, 2)
     encoded_header, encoded_array = frame
 
     decoded_header = json.loads(encoded_header.decode())

@@ -1,8 +1,11 @@
 import tempfile
 import time
+import threading
 import os
 
 import zmq
+
+import oscope.base
 
 IPC_PATH_MAX_LEN = 107
 
@@ -58,9 +61,9 @@ class PublishContext:
     @staticmethod
     def sanity_check_bind_list(binds: list):
         for bind in binds:
-            assert isinstance(bind, str)
-            assert ":" in bind, "Invalid endpoint specified:" + bind
-
+            oscope.base.assert_isinstance(bind, str)
+            oscope.base.assert_contained(":", bind)
+    
     def __init__(self, binds: list):
         self.sanity_check_bind_list(binds)
         self._binds = binds
@@ -102,7 +105,15 @@ class LinkedPubSubPair():
         self._sub = self._ctx.socket(zmq.SUB)
         self._sub.connect(address)
         self._sub.subscribe("")
-        time.sleep(0.2) # Let the subscribe round-trip
+
+        time.sleep(0.4)
+        # Send some things till you get a response through
+        while self._sub.poll(timeout=50) < 0:
+            self._pub.send(b"ping")
+        
+        # Empty out the responses
+        while self._sub.poll(timeout=50) > 0:
+            self._sub.recv()
 
         return self._pub, self._sub
 
@@ -120,3 +131,44 @@ class LinkedPubSubPair():
             self._ctx = None
 
         self._ipc_temp.__exit__(*args)
+
+class SubscribeSocket:
+    def __enter__(self):
+        self._ctx = zmq.Context().__enter__()
+        self._sub = self._ctx.socket(zmq.SUB).__enter__()
+        return self._sub
+
+    def __exit__(self, *args):
+        self._sub.__exit__(self, *args)
+        self._ctx.__exit__(self, *args)
+
+
+class NoisyPubSocket:
+    PAYLOAD = b"foo"
+    def __init__(self):
+        self._pub = None
+
+    def _do_sending(self):
+        while True:
+            self._pub.send(self.PAYLOAD)
+            self._close_event.wait(timeout=0.1)
+            if self._close_event.is_set():
+                break
+
+    def __enter__(self):
+        self._ctx = zmq.Context().__enter__()
+        self._pub = self._ctx.socket(zmq.PUB).__enter__()
+
+        self._close_event = threading.Event() 
+        self._thread = threading.Thread(target=self._do_sending)
+        self._thread.start()
+        return self._pub
+
+    def __exit__(self, *args):
+        self._close_event.set()
+        self._thread.join(1)
+        oscope.base.assert_false(self._thread.is_alive(), "Pub Socket did not shutdown")
+
+        self._pub.__exit__(self, *args)
+        self._ctx.__exit__(self, *args)
+

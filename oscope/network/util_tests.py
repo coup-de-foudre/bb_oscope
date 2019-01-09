@@ -1,12 +1,15 @@
+import time
+
 import pytest
 import zmq
 
+import oscope.base
 import oscope.network.util as socket_helpers
 
 
 def test_ctx_manager():
     with socket_helpers.PublishContext(("ipc://foo", "ipc://bar")) as pub_socket:
-        assert isinstance(pub_socket, zmq.Socket)
+        oscope.base.assert_isinstance(pub_socket, zmq.Socket)
 
 
 def test_ipc_temp_unique():
@@ -15,8 +18,8 @@ def test_ipc_temp_unique():
             unique_names = set()
             unique_names.update(paths1)
             unique_names.update(paths2)
-            
-            assert len(unique_names) == 2, unique_names
+
+            oscope.base.assert_length(unique_names, 2)
 
 def test_ipc_temp_too_long():
     with pytest.raises(AssertionError):
@@ -33,3 +36,15 @@ def test_LinkedPubSubPair_sends():
             pub.send_pyobj(msg)
             assert sub.poll(timeout=1000)
             assert sub.recv_pyobj() == msg
+
+def test_NoisyPubSocket_smoke():
+    with socket_helpers.NoisyPubSocket() as skt:
+        oscope.base.assert_isinstance(skt, zmq.Socket)
+
+def test_NoisyPubSocket():
+    with socket_helpers.NoisyPubSocket() as pub:
+        with socket_helpers.SubscribeSocket() as sub:
+            port = pub.bind_to_random_port("tcp://127.0.0.1")
+            sub.connect("tcp://localhost:{}".format(port))
+            sub.subscribe("")
+            assert sub.poll(timeout=1000) > 0, ":("
