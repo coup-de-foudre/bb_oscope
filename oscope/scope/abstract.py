@@ -46,16 +46,17 @@ class AbstractOscilloscope(object):
         raise TimeoutError("Did not become ready in {} seconds".format(timeout.total_seconds()))
 
     def _sender_thread_run(self):
-        while not self._stop_event.is_set():
-            try:
-                self.block_on_ready(datetime.timedelta(seconds=0.1))
-            except TimeoutError:
-                continue
-            do_sending()
+        with oscope.network.util.PubSocket() as skt:
+            while not self._stop_event.is_set():
+                try:
+                    self.block_on_ready(datetime.timedelta(seconds=0.1))
+                except TimeoutError:
+                    continue
+                do_sending()
 
     def start_sender(self):
         assert self._sender is None, "Already running!"
         
         self._stop_event = threading.Event()
-        self._sender = threading.Thread(targer=self._sender_thread_run)
+        self._sender = threading.Thread(target=self._sender_thread_run)
         self._sender.start()

@@ -1,11 +1,26 @@
+import io
 import json
 
 import numpy as np
 
 import oscope.base
 import oscope.schema
-import oscope.encoding
 
+def ndarray_to_bytes(array: np.ndarray) -> bytes:
+    """
+    Encode a `np.ndarray` to bytes in `.npy` format and return the bytes.
+    """
+    bio = io.BytesIO()
+    np.save(bio, array, allow_pickle=False)
+    return bio.getvalue()
+
+
+def bytes_to_ndarray(b: bytes) -> np.ndarray:
+    """
+    Given the bytes for a `.npy` formatted file, return the `np.ndarray` data
+    """
+    bio = io.BytesIO(b)
+    return np.load(bio)
 
 def package_trace_data(metadata: dict, trace: np.ndarray) -> tuple:
     oscope.schema.validate_message_metadata(metadata)

@@ -1,5 +1,5 @@
-import pytest
 import jsonschema
+import numpy as np
 import pytest
 
 import oscope.schema as schema
@@ -19,6 +19,9 @@ VALID_METADATA = {
         },
         "sequence": 0
     }
+
+VALID_DATA =  np.arange(VALID_METADATA["trace"]["samples"], dtype=np.float64)
+
 
 def test_validator_fails():
     with pytest.raises(jsonschema.ValidationError):
