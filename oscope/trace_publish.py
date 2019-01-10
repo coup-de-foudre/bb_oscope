@@ -52,8 +52,8 @@ class TracePublisher:
             self.publish_data()
 
     def start_sender(self):
-        assert self._sender is None, "Already running!"
-        
+        oscope.base.assert_is_none(self._sender)
+
         self._stop_event.clear()
         self._sender = threading.Thread(target=self._sender_thread_run)
         self._sender.start()

@@ -38,3 +38,7 @@ def assert_pollin(skt: zmq.Socket, timeout=datetime.timedelta(seconds=1)):
     assert_isinstance(skt, zmq.Socket)
     message = "Socket {} did not POLLIN in {} seconds".format(skt, timeout.total_seconds())
     assert skt.poll(timeout=timeout.total_seconds() * 1000) > 0, message
+
+
+def assert_is_none(thing):
+    assert thing is None, "Expected None, got: {}".format(type(thing))
