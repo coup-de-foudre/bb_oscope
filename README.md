@@ -2,8 +2,14 @@
 
 This is intended to be a BeagleBone Oscilloscope
 
-### Scratchpad Notes
+## Useful Links on PRU whatnot:
 
+https://markayoder.github.io/PRUCookbook/
+
+Compiling PRU code from here:
+https://github.com/derekmolloy/exploringBB/blob/version1/chp13/prussC/build
+
+## Scratchpad Notes
 
 Compiling PRU code from here:
 https://github.com/derekmolloy/exploringBB/blob/version1/chp13/prussC/build
