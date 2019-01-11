@@ -1,10 +1,17 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  become: true
+  
+  vars_prompt:
+    - name: "Get the wifi identifier"
+      prompt: "What is the wifi identifier?"
+
+    - name: "Get the wifi passphrase"
+      prompt: "What is the passphrase for this AP?"
 
   tasks:
     - name: change password for root user
-      become: true
       user:
         name: debian
         # openssl passwd -salt bone -1 <plaintext>
@@ -12,15 +19,12 @@
 
 
     - name: Enable the wifi adapter
-      become: true
       command: "connmanctl enable wifi"
 
     - name: Scan AP's
-      become: true
       command: "connmanctl scan wifi"
 
     - name: Scan AP's
-      become: true
       command: "connmanctl services"
       register: aps
     
@@ -28,3 +32,12 @@
 
     - debug:
         msg: "Note the AP-identifier you would like to connect to above (formatted wifi_XXXXX_XXXXX)"
+
+    - name: Generic question with multiple different responses
+      expect:
+        command: "conmanctrl connect {{}}"
+        responses:
+          Question:
+            - response1
+            - response2
+            - response3

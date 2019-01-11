@@ -10,7 +10,7 @@
       dest: /home/debian/am335x_pru_package
   
   - name: "Build/Install PRU Assembler (pasm)"
+    become: true
     make:
       chdir: /home/debian/am335x_pru_package
       target: install
-    become: yes

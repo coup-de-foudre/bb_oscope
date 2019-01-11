@@ -1,0 +1,15 @@
+---
+- hosts: beaglebones
+  remote_user: debian
+  tasks: 
+  - name: "Boot Setup - Disable Video Overlay"
+    lineinfile:
+      line: "disable_uboot_overlay_video=1"
+      dest: "/boot/uEnv.txt"
+    become: yes
+    register: uenv1
+
+  - name: "Reboot to trigger overlay changes."
+    reboot:
+    become: yes
+    when: uenv1.changed
