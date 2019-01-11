@@ -4,11 +4,12 @@
   become: true
   
   vars_prompt:
-    - name: "Get the wifi identifier"
+    - name: "wifi_identifier"
       prompt: "What is the wifi identifier?"
 
-    - name: "Get the wifi passphrase"
+    - name: "wifi_passphrase"
       prompt: "What is the passphrase for this AP?"
+      private: yes
 
   tasks:
     - name: change password for root user
@@ -35,9 +36,7 @@
 
     - name: Generic question with multiple different responses
       expect:
-        command: "conmanctrl connect {{}}"
+        command: "conmanctrl connect {{ wifi_identifier }}"
         responses:
           Question:
-            - response1
-            - response2
-            - response3
+            - "{{ wifi_passphrase }}""
