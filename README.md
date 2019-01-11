@@ -2,6 +2,10 @@
 
 This is intended to be a BeagleBone Oscilloscope
 
+## Install needed deps:
+- `pip3 install ansible`
+- `apt-get install sshpass`
+
 ## Useful Links on PRU whatnot:
 
 https://markayoder.github.io/PRUCookbook/
