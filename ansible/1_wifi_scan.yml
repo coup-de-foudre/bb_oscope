@@ -1,0 +1,30 @@
+---
+- hosts: beaglebones
+  remote_user: debian
+
+  tasks:
+    - name: change password for root user
+      become: true
+      user:
+        name: debian
+        # openssl passwd -salt bone -1 <plaintext>
+        password: "$1$bone$RHLsnAT9n/CTsr9TWq8AA."
+
+
+    - name: Enable the wifi adapter
+      become: true
+      command: "connmanctl enable wifi"
+
+    - name: Scan AP's
+      become: true
+      command: "connmanctl scan wifi"
+
+    - name: Scan AP's
+      become: true
+      command: "connmanctl services"
+      register: aps
+    
+    - debug: var=aps.stdout_lines
+
+    - debug:
+        msg: "Note the AP-identifier you would like to connect to above (formatted wifi_XXXXX_XXXXX)"
