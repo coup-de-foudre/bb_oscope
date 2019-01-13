@@ -26,24 +26,32 @@ unsigned int readFileValue(char filename[]){
 
 int main (int argc, char *argv[])
 {
+  for(int i=0; i<argc; i++){
+    printf("Arg %i %s\n", i, argv[i]);
+  }
+  printf("yay %i", argc);
   tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 
-  if(getuid() != 0){
+  if(getuid() != 0) {
     printf("You must run this program as root. Exiting.\n");
     exit(EXIT_FAILURE);
   }
 
-  if( argc == 0 ){
+  if( argc == 1 ) {
     printf("USAGE\n");
     exit(EXIT_FAILURE);
   }
  
   prussdrv_init();
 
-  if( strcmp(argv[0], "load") == 0 ) {
-    prussdrv_exec_program (PRU_NUM, argv[1]);
+  if( strcmp(argv[1], "load") == 0 ) {
+    if(argc != 3){
+      printf("Fail1");
+      exit(EXIT_FAILURE);
+    }
+    prussdrv_exec_program (PRU_NUM, argv[2]);
   } 
-  else if ( strcmp(argv[0], "stop") == 0) {
+  else if ( strcmp(argv[1], "stop") == 0) {
     prussdrv_pru_disable(PRU_NUM);
   }
 
