@@ -6,7 +6,7 @@ import pypru
 import pypru.prussdrv as DEFINES
 
 
-CDEF_FILE_PATH = os.path.join(pypru.__file__, "prussdrv.h")
+CDEF_FILE_PATH = os.path.join(os.path.split(pypru.__file__)[1], "prussdrv.h")
 
 
 class LibraryLoader:
