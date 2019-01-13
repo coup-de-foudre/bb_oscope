@@ -20,15 +20,18 @@ class LibraryLoader:
         self.lib = self.ffi.dlopen("prussdrv")
 
     def __getattr__(self, callname):
-        if hasattr(self.lib):
+        if not hasattr(self.lib, callname):
             raise AttributeError(callname)
         
         unwrapped_call = getattr(self.lib, callname)
 
         def wrapper(*args, handle=True):
             returncode = unwrapped_call(*args)
+            message = "Call {}{} returned {}".format(callname, args, returncode)
+
             if (returncode != 0) and (returncode is not None) and handle:
-                raise RuntimeError("Call {}({}) returned {}".format(callname, args, returncode))
+                raise ValueError(message)
+            print("DEBUG:  " + message)
             return returncode
 
         return wrapper
