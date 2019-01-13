@@ -32,7 +32,7 @@ int prussdrv_pru_reset(unsigned int prunum);
 
 int prussdrv_pru_disable(unsigned int prunum);
 
-int (unsigned int prunum);
+int prussdrv_pru_enable(unsigned int prunum);
 
 int prussdrv_pru_write_memory(unsigned int pru_ram_id, unsigned int wordoffset, unsigned int *memarea, unsigned int bytelength);
 
