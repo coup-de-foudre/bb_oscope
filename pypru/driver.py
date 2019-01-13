@@ -37,9 +37,9 @@ class LibraryLoader:
             returncode = unwrapped_call(*args)
             message = "RETURNS: {}->{}".format(call_str, returncode)
 
+            print(message)
             if (returncode != 0) and (returncode is not None) and handle:
                 raise ValueError(message)
-            print("DEBUG:  " + message)
             return returncode
 
         return wrapper
