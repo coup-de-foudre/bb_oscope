@@ -19,8 +19,12 @@ class LibraryLoader:
             self.ffi.cdef(f.read())
 
         self.lib = self.ffi.dlopen("prussdrv")
-        self.lib.prussdrv_init()
 
+        self.prussdrv_init()
+        print("Yay1")        
+        self.prussdrv_open(DEFINES.PRU_EVTOUT_0)
+        print("yay2")
+        
     def __getattr__(self, callname):
         if not hasattr(self.lib, callname):
             raise AttributeError(callname)
@@ -28,8 +32,10 @@ class LibraryLoader:
         unwrapped_call = getattr(self.lib, callname)
 
         def wrapper(*args, handle=True):
+            call_str = "{}({})".format(callname, ",".join(str(arg) for arg in args))
+            print("CALLING: " + call_str, flush=True)
             returncode = unwrapped_call(*args)
-            message = "Call {}{} returned {}".format(callname, args, returncode)
+            message = "RETURNS: {}->{}".format(call_str, returncode)
 
             if (returncode != 0) and (returncode is not None) and handle:
                 raise ValueError(message)
@@ -39,7 +45,9 @@ class LibraryLoader:
         return wrapper
 
     def start(self, pru: int):
-        self.lib.prussdrv_pru_enable(pru)
+        i = self.ffi.new("unsigned int*")
+        i[0] = pru
+        self.lib.prussdrv_pru_enable(i[0])
 
     def stop(self, pru: int):
         self.lib.prussdrv_pru_disable(pru)
