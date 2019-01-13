@@ -19,13 +19,12 @@ class LibraryLoader:
 
         self.lib = self.ffi.dlopen("prussdrv")
 
-    def handle_error(self, return_code, callname):
-
     def __getattr__(self, callname):
         if hasattr(self.lib):
-            raise AttributeError()
+            raise AttributeError(callname)
         
         unwrapped_call = getattr(self.lib, callname)
+
         def wrapper(*args, handle=True):
             returncode = unwrapped_call(*args)
             if (returncode != 0) and (returncode is not None) and handle:
