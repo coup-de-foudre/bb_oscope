@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import cffi
 
@@ -18,6 +19,7 @@ class LibraryLoader:
             self.ffi.cdef(f.read())
 
         self.lib = self.ffi.dlopen("prussdrv")
+        self.lib.prussdrv_init()
 
     def __getattr__(self, callname):
         if not hasattr(self.lib, callname):
@@ -36,7 +38,26 @@ class LibraryLoader:
 
         return wrapper
 
+    def start(self, pru: int):
+        self.lib.prussdrv_pru_enable(pru)
+
+    def stop(self, pru: int):
+        self.lib.prussdrv_pru_disable(pru)
+
+    def load_bin(self, pru: int, path: str):
+        assert os.path.isfile(path), path
+        self.lib.prussdrv_exec_program(pru, path)
+
+    def close(self):
+        self.lib.prussdrv_exit()
+
+    def __del__(self):
+        self.close()
+
 
 # Smoketest
 if __name__ == "__main__":
-    LibraryLoader().prussdrv_init()
+    ll = LibraryLoader()
+    ll.start(1)
+    ll.stop(1)
+    ll.close()
