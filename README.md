@@ -15,6 +15,10 @@ https://github.com/derekmolloy/exploringBB/blob/version1/chp13/prussC/build
 
 ## Scratchpad Notes
 
+Needed this trick to the the UIO module back:
+http://catch22.eu/beaglebone/beaglebone-pru-uio/
+
+
 Compiling PRU code from here:
 https://github.com/derekmolloy/exploringBB/blob/version1/chp13/prussC/build
 

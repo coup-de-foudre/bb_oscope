@@ -4,14 +4,39 @@
   become: yes
 
   tasks: 
+  - name: Cleanup | Kill bonescript.autorun
+    systemd:
+      name: bonescript-autorun.service
+      state: stopped
+      enabled: false
+
+
+  - name: Cleanup | Kill bonescript.socket
+    systemd:
+      name: bonescript.socket
+      state: stopped
+      enabled: false
+
+  - name: Cleanup | Kill cloud9
+    systemd:
+      name: cloud9.service
+      state: stopped
+      enabled: false
+
+  - name: Cleanup | Kill apache2
+    systemd:
+      name: apache2.service
+      state: stopped
+      enabled: false
+
   - name: "Boot Setup - Disable Video Overlay"
     lineinfile:
       line: "disable_uboot_overlay_video=1"
       dest: "/boot/uEnv.txt"
     register: uenv1
 
-  -name: "Boot Setup - Enable UIO"
-   lineinfile:
+  - name: "Boot Setup - Enable UIO"
+    lineinfile:
       line: "uboot_overlay_pru=/lib/firmware/AM335X-PRU-UIO-00A0.dtbo"
       dest: "/boot/uEnv.txt"
     register: uenv2
