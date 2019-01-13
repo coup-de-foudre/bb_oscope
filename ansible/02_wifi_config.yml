@@ -12,31 +12,12 @@
       private: yes
 
   tasks:
-    - name: change password for root user
-      user:
-        name: debian
-        # openssl passwd -salt bone -1 <plaintext>
-        password: "$1$bone$RHLsnAT9n/CTsr9TWq8AA."
-
-
     - name: Enable the wifi adapter
       command: "connmanctl enable wifi"
-
-    - name: Scan AP's
-      command: "connmanctl scan wifi"
-
-    - name: Scan AP's
-      command: "connmanctl services"
-      register: aps
-    
-    - debug: var=aps.stdout_lines
-
-    - debug:
-        msg: "Note the AP-identifier you would like to connect to above (formatted wifi_XXXXX_XXXXX)"
 
     - name: Generic question with multiple different responses
       expect:
         command: "conmanctrl connect {{ wifi_identifier }}"
         responses:
           Question:
-            - "{{ wifi_passphrase }}""
+            - "{{ wifi_passphrase }}"

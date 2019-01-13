@@ -1,15 +1,22 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  become: yes
+
   tasks: 
   - name: "Boot Setup - Disable Video Overlay"
     lineinfile:
       line: "disable_uboot_overlay_video=1"
       dest: "/boot/uEnv.txt"
-    become: yes
     register: uenv1
+
+  -name: "Boot Setup - Enable UIO"
+   lineinfile:
+      line: "uboot_overlay_pru=/lib/firmware/AM335X-PRU-UIO-00A0.dtbo"
+      dest: "/boot/uEnv.txt"
+    register: uenv2
 
   - name: "Reboot to trigger overlay changes."
     reboot:
     become: yes
-    when: uenv1.changed
+    when: uenv1.changed or uenv2.changed

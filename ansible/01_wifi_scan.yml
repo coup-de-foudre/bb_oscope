@@ -1,18 +1,16 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  become: true
 
   tasks:
     - name: Enable the wifi adapter
-      become: true
       command: "connmanctl enable wifi"
 
     - name: Scan AP's
-      become: true
       command: "connmanctl scan wifi"
 
     - name: Scan AP's
-      become: true
       command: "connmanctl services"
       register: aps
     

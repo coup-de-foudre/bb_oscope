@@ -1,22 +1,63 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  gather_facts: no
+  become: true
+
   tasks: 
-  - name: "Python | Install pip3"
-    apt:
-      name: python3-pip
-      update_cache: yes
-      cache_valid_time: 3600
-    become: true
+    # Python 2 deps
+    # - name: "Python2 | Install pip2"
+    #   apt:
+    #     name: python-pip
+    #     update_cache: yes
+    #   become: true
 
-  - name: "Python | Copy requirements.txt to remote host"
-    copy:
-      src: "../requirements.txt"
-      dest: "/tmp/requirements.txt"
-    register: info_requirements_file
+    # - name: "Python2 | install pexpect"
+    #   pip:
+    #     name: pexpect
+    #   become: yes
 
-  - name: "Python | Install python modules from requirements.txt"
-    pip:
-      requirements: "/tmp/requirements.txt"
-      executable: pip3
-    become: true
+    - name: "Get pip installer"
+      get_url:
+        url: https://bootstrap.pypa.io/get-pip.py
+        dest: "/home/debian/get-pi.py"
+
+    - name: "Python3 | Install pip3"
+      script: "/home/debian/get-pi.py"
+      args:
+        executable: python3
+        creates: /usr/local/bin/pip3
+
+    # Install numpy from apt (compiling takes forever)
+    - name: "Python3 | Install numpy via apt"
+      apt:
+        name: python3-numpy
+
+    - name: "Python3 | libffi | Clone ffi package"
+      git:
+        clone: yes
+        # Originally https://github.com/beagleboard/am335x_pru_package cloned for stability
+        repo: 'https://github.com/libffi/libffi.git'
+        dest: /home/debian/libffi
+
+    - name: "Python3 | libffi | Configure"
+      script: "/usr/bin/autoconf"
+      args: 
+        chdir: "/home/debian/libffi"
+
+    - name: "Python3 | libffi | Hack to make libffi compile"
+      lineinfile:
+          regexp: "^MAKEINFO =*"
+          line: "MAKEINFO = true"
+          dest: "/home/debian/libffi/armv7l-unknown-linux-gnueabihf/doc/Makefile"  
+
+    - name: "Python3 | Copy requirements.txt to remote host"
+      copy:
+        src: "../requirements.txt"
+        dest: "/tmp/requirements.txt"
+      register: info_requirements_file
+
+    - name: "Python3 | Install python modules from requirements.txt"
+      pip:
+        requirements: "/tmp/requirements.txt"
+        executable: pip3
