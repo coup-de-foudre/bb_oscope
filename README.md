@@ -37,7 +37,20 @@ echo "   sudo sh -c \"echo EBB-PRU-Example > $SLOTS\""
 echo "which requires you to disable the HDMI overlay, as described in Chapter 6"
 ```
 
-Device Tree Overlay
+### Building libffi
 
-```
+
+```bash
+git clone git@github.com:libffi/libffi.git
+cd libffi
+./configure
+
+# Doc generation fails, building text support is hard, remove it
+cd armv7l-unknown-linux-gnueabihf/doc
+sed -e 's|^MAKEINFO =*|MAKEINFO = true|g' Makefile > Makefile.fixed
+mv Makefile.fixed Makefile
+cd ../..
+
+make
+sudo make install
 ```
