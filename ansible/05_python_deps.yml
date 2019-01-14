@@ -2,46 +2,40 @@
 - hosts: beaglebones
   remote_user: debian
   gather_facts: no
-  become: true
 
   tasks: 
-    # Python 2 deps
-    # - name: "Python2 | Install pip2"
-    #   apt:
-    #     name: python-pip
-    #     update_cache: yes
-    #   become: true
-
-    # - name: "Python2 | install pexpect"
-    #   pip:
-    #     name: pexpect
-    #   become: yes
-
     - name: "Get pip installer"
       get_url:
         url: https://bootstrap.pypa.io/get-pip.py
         dest: "/home/debian/get-pi.py"
 
     - name: "Python3 | Install pip3"
-      script: "/home/debian/get-pi.py"
+      command: python3 /home/debian/get-pi.py
+      become: true
+
       args:
-        executable: python3
         creates: /usr/local/bin/pip3
 
     # Install numpy from apt (compiling takes forever)
     - name: "Python3 | Install numpy via apt"
+      become: true
       apt:
         name: python3-numpy
 
     - name: "Python3 | libffi | Clone ffi package"
       git:
         clone: yes
-        # Originally https://github.com/beagleboard/am335x_pru_package cloned for stability
         repo: 'https://github.com/libffi/libffi.git'
         dest: /home/debian/libffi
 
+    # NOTE(meawoppl) - I have no idea why this requires shell
+    - name: "Python3 | libffi | autotools"
+      shell: "autoreconf -i"
+      args:
+        chdir: "/home/debian/libffi"
+
     - name: "Python3 | libffi | Configure"
-      script: "/usr/bin/autoconf"
+      command: "./configure"
       args: 
         chdir: "/home/debian/libffi"
 
@@ -50,6 +44,16 @@
           regexp: "^MAKEINFO =*"
           line: "MAKEINFO = true"
           dest: "/home/debian/libffi/armv7l-unknown-linux-gnueabihf/doc/Makefile"  
+
+    - name: "Python3 | libffi | make"
+      make:
+        chdir: /home/debian/libffi
+
+    - name: "Python3 | libffi | make install"
+      become: true
+      make:
+        chdir: /home/debian/libffi/
+        target: install
 
     - name: "Python3 | Copy requirements.txt to remote host"
       copy:

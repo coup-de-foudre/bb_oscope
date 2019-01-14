@@ -1,6 +1,8 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  gather_facts: no
+
   become: true
   
   vars_prompt:

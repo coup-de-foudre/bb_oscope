@@ -1,6 +1,8 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  gather_facts: no
+
   tasks: 
   - name: "Clone PRU Assembler (pasm)"
     git:
@@ -9,7 +11,11 @@
       repo: 'https://github.com/coup-de-foudre/am335x_pru_package.git'
       dest: /home/debian/am335x_pru_package
   
-  - name: "Build/Install PRU Assembler (pasm)"
+  - name: "Build PRU Assembler (pasm)"
+    make:
+      chdir: /home/debian/am335x_pru_package
+
+  - name: "Install PRU Assembler (pasm)"
     become: true
     make:
       chdir: /home/debian/am335x_pru_package

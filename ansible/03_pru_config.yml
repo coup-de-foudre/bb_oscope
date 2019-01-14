@@ -1,6 +1,7 @@
 ---
 - hosts: beaglebones
   remote_user: debian
+  gather_facts: no
   become: yes
 
   tasks: 
@@ -31,13 +32,15 @@
 
   - name: "Boot Setup - Disable Video Overlay"
     lineinfile:
-      line: "disable_uboot_overlay_video=1"
+      regex: "#disable_uboot_overlay_video=1"
+      line:   "disable_uboot_overlay_video=1"
       dest: "/boot/uEnv.txt"
     register: uenv1
 
   - name: "Boot Setup - Enable UIO"
     lineinfile:
-      line: "uboot_overlay_pru=/lib/firmware/AM335X-PRU-UIO-00A0.dtbo"
+      regex: "#uboot_overlay_pru=/lib/firmware/AM335X-PRU-UIO-00A0.dtbo"
+      line:   "uboot_overlay_pru=/lib/firmware/AM335X-PRU-UIO-00A0.dtbo"
       dest: "/boot/uEnv.txt"
     register: uenv2
 

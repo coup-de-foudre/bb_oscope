@@ -1,5 +1,5 @@
 [uninitialized_beaglebone]
-beaglebone.local ansible_ssh_user=debian ansible_ssh_pass=temppwd ansible_become_pass=temppwd
+beaglebone.local ansible_ssh_user=debian
 
 [beaglebones]
-oscilloscope-372e.local
+oscilloscope-3726.local
