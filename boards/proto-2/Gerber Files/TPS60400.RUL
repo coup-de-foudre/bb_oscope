@@ -1,0 +1,6 @@
+DRC Rules Export File for PCB: C:\Users\Mutahir\Desktop\Meopple\Altium Design Files\TPS60400.PcbDoc
+RuleKind=Clearance|RuleName=PowerPlane|Scope=Board|Minimum=11.81
+RuleKind=SolderMaskExpansion|RuleName=SolderMaskExpansion|Scope=Board|Minimum=4.00
+RuleKind=Width|RuleName=Width|Scope=Board|Minimum=3.94
+RuleKind=Clearance|RuleName=Clearance|Scope=Board|Minimum=11.81
+RuleKind=ShortCircuit|RuleName=ShortCircuit|Scope=Board|Allowed=0

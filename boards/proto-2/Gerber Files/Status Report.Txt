@@ -1,0 +1,13 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [TPS60400.PrjPCB]
+   Generated File[TPS60400.TXT]
+   Generated File[TPS60400.DRL]
+   Generated File[TPS60400.LDP]
+   Generated File[TPS60400.DRR]
+
+
+Files Generated   : 4
+Documents Printed : 0
+
+Finished Output Generation At 2:58:17 PM On 13/01/2019
