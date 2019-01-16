@@ -58,3 +58,17 @@ cd ../..
 make
 sudo make install
 ```
+
+```
+debian@beaglebone:~/hello$ cat a.sh 
+set -x
+dmesg --clear
+	echo "4a334000.pru0" > /sys/bus/platform/drivers/pru-rproc/unbind
+	echo "4a334000.pru0" > /sys/bus/platform/drivers/pru-rproc/bind
+	echo "4a338000.pru1" > /sys/bus/platform/drivers/pru-rproc/unbind
+	echo "4a338000.pru1" > /sys/bus/platform/drivers/pru-rproc/bind
+Hey,
+    unbind/bind doesn't work in the latest kernel versions. Instead you can use this to restart remoteproc and load the firmware:
+echo 'stop'>/sys/class/remoteproc/remoteproc1/state
+echo 'start'>/sys/class/remoteproc/remoteproc1/state
+```
