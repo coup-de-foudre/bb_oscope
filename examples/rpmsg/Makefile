@@ -39,14 +39,18 @@ GEN_DIR=gen
 
 #Common compiler and linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
 CFLAGS=-v3 -O2 --display_error_number --endian=little --hardware_mac=on --obj_directory=$(GEN_DIR) --pp_directory=$(GEN_DIR) -ppd -ppa
+
+AFLAGS=-v3 -O2 --display_error_number --endian=little --hardware_mac=on --obj_directory=$(GEN_DIR) --pp_directory=$(GEN_DIR) -ppd -ppa
+
 #Linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
 LFLAGS=--reread_libs --warn_sections --stack_size=$(STACK_SIZE) --heap_size=$(HEAP_SIZE)
 
 TARGET=$(GEN_DIR)/$(PROJ_NAME).out
 MAP=$(GEN_DIR)/$(PROJ_NAME).map
-SOURCES=$(wildcard *.c)
+CSOURCES=$(wildcard *.c)
+ASOURCES= $(wildcard *.asm)
 #Using .object instead of .obj in order to not conflict with the CCS build process
-OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.c=.object))
+OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(CSOURCES:.c=.object)) $(patsubst %,$(GEN_DIR)/%,$(ASOURCES:.asm=.object))
 
 all: printStart $(TARGET) printEnd
 
@@ -78,6 +82,14 @@ $(GEN_DIR)/%.object: %.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: PRU Compiler'
 	clpru --include_path=$(PRU_CGT)/include $(INCLUDE) $(CFLAGS) -fe $@ $<
+
+$(GEN_DIR)/%.object: %.asm
+	@mkdir -p $(GEN_DIR)
+	@echo ''
+	@echo 'Building file: $<'
+	@echo 'Invoking: PRU Compiler'
+	clpru --include_path=$(PRU_CGT)/include $(INCLUDE) $(AFLAGS) -fe $@ $<
+
 
 .PHONY: all clean
 

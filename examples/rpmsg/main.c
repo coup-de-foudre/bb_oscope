@@ -69,6 +69,8 @@ volatile register uint32_t __R31;
 #define RPMSG_BUF_HEADER_SIZE           16
 uint8_t payload[RPMSG_BUF_SIZE - RPMSG_BUF_HEADER_SIZE];
 
+void doclock(void);
+
 /*
  * main.c
  */
@@ -100,9 +102,18 @@ void main(void)
 			CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 			/* Receive all available messages, multiple messages can be sent per kick */
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
-				/* Echo the message back to the same address from which we just received */
+			  doclock();
+			  /* Echo the message back to the same address from which we just received */
 				pru_rpmsg_send(&transport, dst, src, payload, len);
 			}
 		}
 	}
+}
+
+volatile register uint32_t __R30, __R31;
+
+void readADC(int* data, int dataLength) {
+  // Set the destination address into the user register R30
+  __R30 = data;
+
 }
