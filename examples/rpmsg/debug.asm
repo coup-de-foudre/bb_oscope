@@ -9,7 +9,7 @@ COUNT .set 1000	;
 
 doclock:
   LDI r1, DELAY ; Setup the delay counter
-  mov r15, r0   ; Setup the cycle counter (first argument)
+  mov r0, r14   ; Setup the cycle counter (first argument)
 
 MAINLOOP:
   CLR	r30, r30.t5	; set the clock to be low
@@ -27,8 +27,8 @@ DELAYON:
   SUB	r1, r1, 1	; decrement the counter by 1 and loop (next line)
   QBNE	DELAYON, r1, 0	; loop until the delay has expired (equals 0)
 
-  SUB  r15, r15, 1       ; Decrement the cycle counter
-  QBNE MAINLOOP, r15, 0  ; Exit criteria
+  SUB  r0, r0, 1       ; Decrement the cycle counter
+  QBNE MAINLOOP, r0, 0  ; Exit criteria
 
 RET:
   CLR r30, r30.t5	; set the clock to be low

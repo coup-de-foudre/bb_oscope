@@ -73,20 +73,18 @@ void main(void)
       /* Clear the event status */
       CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 
-      doclock(100);
-      doclock(100);
-      //doclock(100);
+      doclock(200);
 
       /* Receive all available messages, multiple messages can be sent per kick */
       while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
-	// doclock(100);
+	doclock(1000);
 
 	//	int i;
 	//for(i=0; i<NSAMPLES; ++i) {
 	//  payload[i] = 0;
 	//}
 
-	dosampling(payload, NSAMPLES);
+	// dosampling(payload, NSAMPLES);
 	/* Echo the message back to the same address from which we just received */
 	pru_rpmsg_send(&transport, dst, src, payload, len);
       }
