@@ -14,46 +14,59 @@
 ;;; r23 - Number of samples to be read
 ;;: r29 - Readout value from the ADC
 
-osampling:
+
+DEALY_CYCLES .set  49800	    ;
+TIME_CLOCK   .set  1	           ;
+	.asg "49800", DELAY_CYCLES  ;
+        .asg "1", TIME_CLOCK    ;
+
+
+	.global dosampling
+
+dosampling:
   ; r22 is the pointer to the next storage write location
-  lbbo r22, r0, 4, 4	 ; load memory write-to address into r22
+  mov r22, r0
 
   ; r15 is the number of bytes remaining to store
-  lbbo r15, r1, 8, 4	 ; load the size that is passed into r15
+  mov r15, r1
 
   ; initialize the 10 bit mask constant
-  mov r18, 0x00000FFF
-	
-  mov r29, 0x00000000	 ; clear r29 to receive the response from the adc
-  clr r30.t2		 ; set the clock low
+  ldi r18, 0x00000FFF
 
+  ; initialize the dataspace for spi readout
+  ldi r29, 0x00000000
+
+  clr r30, r30.t2  ; set the clock low
 	
 GET_A_SAMPLE:
-  clr r30.t5		 ; set the CS line low (active low)
-  mov r14, 16		 ; going to write/read 16 bits (2 bytes)
+  clr r30, r30.t5	 ; set the CS line low (active low)
+  ldi r14, 16		 ; going to write/read 16 bits (2 bytes)
 
 SPICLK_BIT:	           ; loop for each of the 16 bits
-  sub  r14, r14, 1        ; count down through the bits
-  call SPICLK             ; repeat call the SPICLK procedure until all 16 bits written/read
-  qbne SPICLK_BIT, r14, 0 ; have we performed 16 cycles?
+  sub r14, r14, 1         ; count down through the bits
+  jmp SPICLK               ; repeat call the SPICLK procedure until all 16 bits written/read
 
+SPI_READ_RETURN:
+  qbne SPICLK_BIT, r14, 0 ; have we performed 16 cycles?
+	
   lsr r29, r29, 2      ; SPICLK shifts left too many times left, shift right once
   and r29, r29, r18    ; AND the data with mask to give only the 10 LSBs
-  set r30.t5		 ; pull the CS line high (end of sample)
+  set r30, r30.t5      ; pull the CS line high (end of sample)
 
-STORE_DATA:	          ; store the sample value in memory
-  sbbo  r29.w0, r22, 0, 2 ; store the value r29 in memory
-  add   r22, r22, 2	  ; shifting by 2 bytes - 2 bytes per sample
+STORE_DATA:	            ; store the sample value in memory
+  sbbo  &r29.w0, r22, 0, 2  ; store the value r29 in memory
+  add   r22, r22, 2         ; shifting by 2 bytes - 2 bytes per sample
 
 ;;; Check to see if this was the last sample, if so break
   sub   r15, r15, 2	  ; reducing the number of samples - 2 bytes per sample
   qbeq  END, r15, 0       ; have taken the full set of samples
 
 ;;; TODO(meawoppl) replace with a more legitimate clock waiter etc.
+DELAY_START:
+  ldi r0, 500
 DELAY:
-  mov r0, 500
   sub r0, r0, 1
-  qbne DEALY r0, 0
+  qbne DELAY, r0, 0
 
   qba GET_A_SAMPLE
 
@@ -68,26 +81,24 @@ END:
 ; time that the clock must remain low and the time it must remain high (assuming 50% duty cycle)
 ; The input and output data is shifted left on each clock cycle
 
-#define TIME_CLOCK	1	; T_hi and t_lo = 125ns = 25 instructions (min)
-
 SPICLK:
   lsl r29, r29, 1        ; shift the captured data left by one position
-  mov r0, TIME_CLOCK	 ; time for clock low -- assuming clock low before cycle
+  ldi r0, TIME_CLOCK	 ; time for clock low -- assuming clock low before cycle
 
 CLKLOW:
   sub  r0, r0, 1	 ; decrement the counter by 1 and loop (next line)
   qbne CLKLOW, r0, 0	 ; check if the count is still low
 
-  set  r30.t2		    ; set the clock high
-  qbbc DATAINLOW, r31.t3   ; check if the bit that is read in is low? jump
+  set  r30, r30.t2           ; set the clock high
+  qbbc DATAINLOW, r31, 3     ; check if the bit that is read in is low? jump
   or   r29, r29, 0x00000001  ; set the stored bit LSB to 1 otherwise
 
 DATAINLOW:
   ; Clock goes high for a time period
-  mov  r0, TIME_CLOCK	 ; time for clock high
+  ldi  r0, TIME_CLOCK	 ; time for clock high
 
 CLKHIGH:
   sub  r0, r0, 1	 ; decrement the counter by 1 and loop (next line)
   qbne CLKHIGH, r0, 0	 ; check the count
-  clr  r30.t2		 ; set the clock low
-  ret
+  clr  r30, r30.t2	 ; set the clock low
+  jmp SPI_READ_RETURN

@@ -32,11 +32,15 @@ volatile register uint32_t __R31;
  */
 #define VIRTIO_CONFIG_S_DRIVER_OK	4
 
-
 #define RPMSG_BUF_HEADER_SIZE           16
 uint8_t payload[RPMSG_BUF_SIZE - RPMSG_BUF_HEADER_SIZE];
 
-void doclock(void);
+extern void doclock(int);
+extern void dosampling(uint8_t* samples, int nsamples);
+
+
+#define NSAMPLES 50
+uint8_t readout[NSAMPLES];
 
 /*
  * main.c
@@ -69,9 +73,20 @@ void main(void)
       /* Clear the event status */
       CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 
+      doclock(100);
+      doclock(100);
+      //doclock(100);
+
       /* Receive all available messages, multiple messages can be sent per kick */
       while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
-	doclock();
+	// doclock(100);
+
+	//	int i;
+	//for(i=0; i<NSAMPLES; ++i) {
+	//  payload[i] = 0;
+	//}
+
+	dosampling(payload, NSAMPLES);
 	/* Echo the message back to the same address from which we just received */
 	pru_rpmsg_send(&transport, dst, src, payload, len);
       }
