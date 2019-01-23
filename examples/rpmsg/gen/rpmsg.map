@@ -1,7 +1,7 @@
 ******************************************************************************
                      PRU Linker Unix v2.1.5                    
 ******************************************************************************
->> Linked Wed Jan 23 07:13:42 2019
+>> Linked Wed Jan 23 07:21:50 2019
 
 OUTPUT FILE NAME:   <gen/rpmsg.out>
 ENTRY POINT SYMBOL: "_c_int00_noinit_noargs_noexit"  address: 00000000

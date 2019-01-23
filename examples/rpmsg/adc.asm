@@ -16,9 +16,9 @@
 
 
 DEALY_CYCLES .set  49800	    ;
-TIME_CLOCK   .set  1	           ;
+TIME_CLOCK   .set  100	           ;
 	.asg "49800", DELAY_CYCLES  ;
-        .asg "1", TIME_CLOCK    ;
+        .asg "100", TIME_CLOCK    ;
 
 
 	.global dosampling
