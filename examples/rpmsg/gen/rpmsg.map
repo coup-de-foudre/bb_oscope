@@ -1,7 +1,7 @@
 ******************************************************************************
                      PRU Linker Unix v2.1.5                    
 ******************************************************************************
->> Linked Mon Jan 21 22:30:53 2019
+>> Linked Wed Jan 23 02:07:06 2019
 
 OUTPUT FILE NAME:   <gen/rpmsg.out>
 ENTRY POINT SYMBOL: "_c_int00_noinit_noargs_noexit"  address: 00000000
@@ -69,7 +69,7 @@ section   page    origin      length       input sections
                   00000350    00000060                   : pru_virtqueue.object (.text:pru_virtqueue_init)
                   000003b0    0000005c                   : pru_rpmsg.object (.text:pru_rpmsg_channel)
                   0000040c    0000005c                   : pru_virtqueue.object (.text:pru_virtqueue_add_used_buf)
-                  00000468    00000038     func.object (.text)
+                  00000468    00000038     debug.object (.text)
                   000004a0    00000034     rtspruv3_le.lib : memcpy.obj (.text)
                   000004d4    00000028     rpmsg_lib.lib : pru_virtqueue.object (.text:pru_virtqueue_kick)
                   000004fc    00000008     rtspruv3_le.lib : exit.obj (.text:abort)
