@@ -130,13 +130,14 @@ def require_root_or_die():
 
 if __name__ == "__main__":
     PRUS = (0, 1)
-    parser = argparse.ArgumentParser(description=USAGE, epilog="THIS UTILITY MUST BE RUN AS ROOT")
-    parser.add_argument("--start", type=int, choices=PRUS, help="Start the pru specified")
-    parser.add_argument("--stop", type=int, choices=PRUS, help="Stop the pru specified")
-    parser.add_argument("--compile", type=str, help="Make, load and start from source.")
+    parser = argparse.ArgumentParser(description=USAGE)
+    parser.add_argument("--start", type=int, choices=PRUS, help="Start the pru specified (REQUIRES ROOT)")
+    parser.add_argument("--stop", type=int, choices=PRUS, help="Stop the pru specified  (REQUIRES ROOT)")
+    parser.add_argument("--compile", nargs=1, type=str, help="Make, load and start from source.")
+    parser.add_argument("--load", nargs=1, type=str, help="Make, load and start from source (REQUIRES ROOT)")
     args = parser.parse_args()
 
-    if not args.start or args.stop or args.load():
+    if not (args.start or args.stop or args.compile):
         parser.print_help()
         sys.exit(1)
 
@@ -150,7 +151,7 @@ if __name__ == "__main__":
         PRU(args.start).stop_pru()
 
     elif args.compile:
-        fw = FirmwareCompiler(args.load)
+        fw = FirmwareCompiler(args.compile[0])
         fw.compile()
         print(fw.find_output())
 
