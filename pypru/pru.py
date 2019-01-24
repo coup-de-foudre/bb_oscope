@@ -123,6 +123,10 @@ class FirmwareCompiler:
     def find_output(self):
         return files_ending_with(self._path, self.FIRMWARE_EXTENSION)
 
+def require_root_or_die():
+    if os.getuid() != 0:
+        print("This utility must be run as root")
+        sys.exit(1)
 
 if __name__ == "__main__":
     PRUS = (0, 1)
@@ -136,20 +140,22 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(1)
 
-    if os.getuid() != 0:
-        print("This utility must be run as root")
-        sys.exit(1)
 
     if args.start:
+        require_root_or_die()
         PRU(args.start).start_pru()
+
     elif args.stop:
+        require_root_or_die()
         PRU(args.start).stop_pru()
+
     elif args.compile:
         fw = FirmwareCompiler(args.load)
         fw.compile()
         print(fw.find_output())
 
-    elif arge.load:
+    elif args.load:
+        require_root_or_die()
         fw = FirmwareCompiler(args.load)
 
         for n, fw in enumerate(fw.find_output()):
