@@ -6,29 +6,28 @@
 ;   Sample Clock    :	P8_46	 pr1_pru1_pru_r30_1  -- for testing only
 
 ;;; Important Registers:
-;;; r14 - SPI Bit read countdown
+;;; r14 - Current write to address (arg 0)
 ;;; r15 - Stored byte countdown
 ;;; r16 - Sampled bytes countup
 ;;; r18 - Bit mask for 10 bit dataz
-;;; r22 - Current write to address
+;;; r22 - SPI Bit read countdown
 ;;; r23 - Number of samples to be read
 ;;: r29 - Readout value from the ADC
 
 
 DEALY_CYCLES .set  49800	    ;
-TIME_CLOCK   .set  100	           ;
+TIME_CLOCK   .set  1	           ;
 	.asg "49800", DELAY_CYCLES  ;
-        .asg "100", TIME_CLOCK    ;
+        .asg "1", TIME_CLOCK    ;
 
 
 	.global dosampling
 
 dosampling:
   ; r22 is the pointer to the next storage write location
-  mov r22, r0
 
   ; r15 is the number of bytes remaining to store
-  mov r15, r1
+  mov r15, r15
 
   ; initialize the 10 bit mask constant
   ldi r18, 0x00000FFF
@@ -39,23 +38,23 @@ dosampling:
   clr r30, r30.t2  ; set the clock low
 	
 GET_A_SAMPLE:
-  clr r30, r30.t5	 ; set the CS line low (active low)
-  ldi r14, 16		 ; going to write/read 16 bits (2 bytes)
+  clr r30, r30.t5  ; set the CS line low (active low)
+  ldi r22, 16      ; going to write/read 16 bits (2 bytes)
 
-SPICLK_BIT:	           ; loop for each of the 16 bits
-  sub r14, r14, 1         ; count down through the bits
-  jmp SPICLK               ; repeat call the SPICLK procedure until all 16 bits written/read
+SPICLK_BIT:	   ; loop for each of the 16 bits
+  sub r22, r22, 1  ; count down through the bits
+  jmp SPICLK       ; repeat call the SPICLK procedure until all 16 bits written/read
 
 SPI_READ_RETURN:
-  qbne SPICLK_BIT, r14, 0 ; have we performed 16 cycles?
+  qbne SPICLK_BIT, r22, 0 ; have we performed 16 cycles?
 	
   lsr r29, r29, 2      ; SPICLK shifts left too many times left, shift right once
   and r29, r29, r18    ; AND the data with mask to give only the 10 LSBs
   set r30, r30.t5      ; pull the CS line high (end of sample)
 
 STORE_DATA:	            ; store the sample value in memory
-  sbbo  &r29.w0, r22, 0, 2  ; store the value r29 in memory
-  add   r22, r22, 2         ; shifting by 2 bytes - 2 bytes per sample
+  sbbo  &r29.w0, r14, 0, 2  ; store the value r29 in memory
+  add   r14, r14, 2         ; shifting by 2 bytes - 2 bytes per sample
 
 ;;; Check to see if this was the last sample, if so break
   sub   r15, r15, 2	  ; reducing the number of samples - 2 bytes per sample
@@ -63,7 +62,7 @@ STORE_DATA:	            ; store the sample value in memory
 
 ;;; TODO(meawoppl) replace with a more legitimate clock waiter etc.
 DELAY_START:
-  ldi r0, 500
+  ldi r0, DELAY_CYCLES
 DELAY:
   sub r0, r0, 1
   qbne DELAY, r0, 0
