@@ -1,4 +1,5 @@
-#/usr/bin/python3
+#!/usr/bin/python3
+
 import argparse
 import os
 import shutil
@@ -15,9 +16,9 @@ as configured on the current beablebone image
 
 NUMBER must be either 0, or 1, which confusingly map to
 the devices:
+
   - 0 /sys/class/remoteproc/remoteproc1
   - 1 /sys/class/remoteproc/remoteproc2
-
 """
 
 
@@ -137,7 +138,7 @@ if __name__ == "__main__":
     parser.add_argument("--load", nargs=1, type=str, help="Make, load and start from source (REQUIRES ROOT)")
     args = parser.parse_args()
 
-    if not (args.start or args.stop or args.compile):
+    if not (args.start or args.stop or args.compile or args.load):
         parser.print_help()
         sys.exit(1)
 
