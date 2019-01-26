@@ -22,6 +22,27 @@ the devices:
 """
 
 
+def require_root_or_die():
+    if os.getuid() != 0:
+        print("This utility must be run as root")
+        sys.exit(1)
+
+
+def files_ending_with(directory: str, extension: str):
+    """
+    Walk `directory` searching for files that end with `extension`.
+
+    Return a possibly empty list which points to files as anchored at the
+    base of directory.
+    """
+    results = []
+    for dirpath, _, filenames in os.walk(directory):
+        for filename in [f for f in filenames if f.endswith(extension)]:
+            results.append(os.path.join(dirpath, filename))
+    return results
+
+
+
 def _pru_join(number: int, location: str):
     return os.path.join(REMOTEPROC_ROOT, "remoteproc%i" % (number + 1), location)
 
@@ -41,8 +62,8 @@ _sanity_check_device(pru1_device)
 
 class PRU:
     def __init__(self, pru: int):
-        pru1_device = _pru_join(1, "device")
-        _sanity_check_device(pru1_device)
+        require_root_or_die()
+        _sanity_check_device(_pru_join(pru, "device"))
         self.pru = pru
 
     def _state_file_path(self) -> str:
@@ -50,14 +71,19 @@ class PRU:
         assert os.path.exists(path), path
         return path
 
+    def _report_change(self, change: str):
+        print("PRU%i -> %s" % (self.pru, change))
+    
     def get_state(self) -> str:
         with open(self._state_file_path()) as f:
-            return f.read()
+            return f.read().strip()
 
     def set_state(self, state: str):
+        self._report_change("Pending: %s" % state)
         with open(self._state_file_path(), "r+") as f:
             f.write(state)
-
+        self._report_change("Completed: %s" % state)
+              
     def is_pru_running(self) -> bool:
         return self.get_state() == "running"
 
@@ -66,12 +92,13 @@ class PRU:
             print("WARNING: PRU%i is already running" % self.pru)
             return
         self.set_state("start")
-
+        
     def stop_pru(self):
         if not self.is_pru_running():
-            print("WARNING: Can not stop PRU%i: %s" % (self.pru, self.get_state()))
-        self.set_state("stop")
+            print("WARNING: Requested to stop PRU%i, but already in state '%s'" % (self.pru, self.get_state()))
 
+        self.set_state("stop")
+        
     def restart_pru(self):
         self.stop_pru()
         self.start_pru()
@@ -83,22 +110,13 @@ class PRU:
 
     def load_firmware(self, path: str):
         assert os.path.exists(path), path
-        shutil.move(path, os.path.join("/lib/firmware", self.read_firmware_name()))
+        firmware_dest = os.path.join("/lib/firmware", self.read_firmware_name())                                                         
+        print("Loading firmware for PRU%i (%s -> %s)" % (self.pru, path, firmware_dest))
+        shutil.move(path, firmware_dest)
+        self._report_change("Restarting")
         self.restart_pru()
+        self._report_change("Restarted")
 
-
-def files_ending_with(directory: str, extension: str):
-    """
-    Walk `directory` searching for files that end with `extension`.
-
-    Return a possibly empty list which points to files as anchored at the
-    base of directory.
-    """
-    results = []
-    for dirpath, _, filenames in os.walk(directory):
-        for filename in [f for f in filenames if f.endswith(extension)]:
-            results.append(os.path.join(dirpath, filename))
-    return results
 
 
 class FirmwareCompiler:
@@ -124,11 +142,6 @@ class FirmwareCompiler:
     def find_output(self):
         return files_ending_with(self._path, self.FIRMWARE_EXTENSION)
 
-def require_root_or_die():
-    if os.getuid() != 0:
-        print("This utility must be run as root")
-        sys.exit(1)
-
 if __name__ == "__main__":
     PRUS = (0, 1)
     parser = argparse.ArgumentParser(description=USAGE)
@@ -144,11 +157,9 @@ if __name__ == "__main__":
 
 
     if args.start:
-        require_root_or_die()
         PRU(args.start).start_pru()
 
     elif args.stop:
-        require_root_or_die()
         PRU(args.start).stop_pru()
 
     elif args.compile:
@@ -157,8 +168,7 @@ if __name__ == "__main__":
         print(fw.find_output())
 
     elif args.load:
-        require_root_or_die()
-        fw = FirmwareCompiler(args.load)
+        fw = FirmwareCompiler(args.load[0])
 
         for n, fw in enumerate(fw.find_output()):
             PRU(n).load_firmware(fw)
