@@ -116,6 +116,7 @@ class PRU:
         self._report_change("Restarting")
         self.restart_pru()
         self._report_change("Restarted")
+        self._report_change("State: " + self.get_state())
 
 
 class FirmwareCompiler:
@@ -170,7 +171,7 @@ if __name__ == "__main__":
         PRU(args.start).start_pru()
 
     elif args.stop:
-        PRU(args.start).stop_pru()
+        PRU(args.stop).stop_pru()
 
     elif args.compile:
         fw = FirmwareCompiler(args.compile[0])
