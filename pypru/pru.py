@@ -42,7 +42,6 @@ def files_ending_with(directory: str, extension: str):
     return results
 
 
-
 def _pru_join(number: int, location: str):
     return os.path.join(REMOTEPROC_ROOT, "remoteproc%i" % (number + 1), location)
 
@@ -92,14 +91,14 @@ class PRU:
             print("WARNING: PRU%i is already running" % self.pru)
             return
         self.set_state("start")
-        
+
     def stop_pru(self):
         if not self.is_pru_running():
             print("WARNING: Requested to stop PRU%i, but already in state '%s'" % (self.pru, self.get_state()))
             return
 
         self.set_state("stop")
-        
+
     def restart_pru(self):
         self.stop_pru()
         self.start_pru()
@@ -117,7 +116,6 @@ class PRU:
         self._report_change("Restarting")
         self.restart_pru()
         self._report_change("Restarted")
-
 
 
 class FirmwareCompiler:

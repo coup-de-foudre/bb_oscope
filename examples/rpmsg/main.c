@@ -77,16 +77,16 @@ void main(void)
 
       /* Receive all available messages, multiple messages can be sent per kick */
       while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
-	doclock(1000);
+        doclock(1000);
 
-	int i;
-	for(i=0; i<len; ++i) {
-	  payload[i] = 0;
-	}
+        int i;
+        for(i=0; i<len; ++i) {
+          payload[i] = 0;
+        }
 
-	dosampling(payload, len);
-	/* Echo the message back to the same address from which we just received */
-	pru_rpmsg_send(&transport, dst, src, payload, len);
+        dosampling(payload, len);
+        /* Echo the message back to the same address from which we just received */
+        pru_rpmsg_send(&transport, dst, src, payload, len);
       }
     }
   }
