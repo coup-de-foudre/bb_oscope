@@ -96,6 +96,7 @@ class PRU:
     def stop_pru(self):
         if not self.is_pru_running():
             print("WARNING: Requested to stop PRU%i, but already in state '%s'" % (self.pru, self.get_state()))
+            return
 
         self.set_state("stop")
         
@@ -142,19 +143,27 @@ class FirmwareCompiler:
     def find_output(self):
         return files_ending_with(self._path, self.FIRMWARE_EXTENSION)
 
+
 if __name__ == "__main__":
     PRUS = (0, 1)
     parser = argparse.ArgumentParser(description=USAGE)
-    parser.add_argument("--start", type=int, choices=PRUS, help="Start the pru specified (REQUIRES ROOT)")
-    parser.add_argument("--stop", type=int, choices=PRUS, help="Stop the pru specified  (REQUIRES ROOT)")
-    parser.add_argument("--compile", nargs=1, type=str, help="Make, load and start from source.")
-    parser.add_argument("--load", nargs=1, type=str, help="Make, load and start from source (REQUIRES ROOT)")
+    parser.add_argument(
+        "--start", type=int, choices=PRUS,
+        help="Start the pru specified (REQUIRES ROOT)")
+    parser.add_argument(
+        "--stop", type=int, choices=PRUS,
+        help="Stop the pru specified  (REQUIRES ROOT)")
+    parser.add_argument(
+        "--compile", nargs=1, type=str, metavar="TARGET",
+        help="Make, load and start from source.")
+    parser.add_argument(
+        "--load", nargs=1, type=str, metavar="TARGET",
+        help="Make, load and start from source (REQUIRES ROOT)")
     args = parser.parse_args()
 
     if not (args.start or args.stop or args.compile or args.load):
         parser.print_help()
         sys.exit(1)
-
 
     if args.start:
         PRU(args.start).start_pru()
