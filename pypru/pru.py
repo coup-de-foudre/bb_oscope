@@ -148,6 +148,9 @@ if __name__ == "__main__":
     PRUS = (0, 1)
     parser = argparse.ArgumentParser(description=USAGE)
     parser.add_argument(
+        "--prus", nargs="+", choices=PRUS,
+        help="Which PRU(s) to target")
+    parser.add_argument(
         "--start", type=int, choices=PRUS,
         help="Start the pru specified (REQUIRES ROOT)")
     parser.add_argument(
