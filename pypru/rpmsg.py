@@ -21,8 +21,14 @@ def find_rpmsg_endpoint(timeout: datetime.timedelta = THREE_SECONDS):
 def send_rpmsg(msg: bytes):
     ep = find_rpmsg_endpoint()[0]
     print("Sending '{}' --> '{}'".format(msg.hex(), ep))
-    with open(ep, "wb") as f:
-        f.write(msg)
+
+    fd = os.open(ep, os.O_RDWR | os.O_CLOEXEC)
+    try:
+        os.write(fd, msg)
+    finally:
+        os.close(fd)
+
+    print("Sent")
 
 
 def recv_rpmsg() -> bytes:

@@ -61,6 +61,8 @@ void main(void)
   status = &resourceTable.rpmsg_vdev.status;
   while (!(*status & VIRTIO_CONFIG_S_DRIVER_OK));
 
+  doclock(1000);
+
   /* Initialize the RPMsg transport structure */
   pru_rpmsg_init(&transport, &resourceTable.rpmsg_vring0, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
 
@@ -79,13 +81,13 @@ void main(void)
       while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
         doclock(1000);
 
-        int i;
-        for(i=0; i<len; ++i) {
-          payload[i] = 0;
-        }
+        // int i;
+        // for(i=0; i<len; ++i) {
+        //   payload[i] = 0;
+        // }
 
-        dosampling(payload, len);
-        /* Echo the message back to the same address from which we just received */
+        // dosampling(payload, len);
+        // /* Echo the message back to the same address from which we just received */
         pru_rpmsg_send(&transport, dst, src, payload, len);
       }
     }

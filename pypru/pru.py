@@ -94,7 +94,9 @@ class PRU:
 
     def stop_pru(self):
         if not self.is_pru_running():
-            print("WARNING: Requested to stop PRU%i, but already in state '%s'" % (self.pru, self.get_state()))
+            print(
+                "WARNING: Requested to stop PRU{}, but already in state '{}'"
+                .format(self.pru, self.get_state()))
             return
 
         self.set_state("stop")
@@ -106,7 +108,7 @@ class PRU:
     def read_firmware_name(self) -> str:
         fw_name_file = _pru_join(self.pru, "firmware")
         with open(fw_name_file) as f:
-            return f.read()
+            return f.read().strip()
 
     def load_firmware(self, path: str):
         assert os.path.exists(path), path
